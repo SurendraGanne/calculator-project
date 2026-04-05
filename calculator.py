@@ -1,3 +1,5 @@
+import math
+
 def add(a, b):
     return a + b
 
@@ -12,7 +14,15 @@ def divide(a, b):
         return "Error: Cannot divide by zero!"
     return a / b
 
-def calculate(num1, operator, num2):
+def power(a, b):
+    return a ** b
+
+def square_root(a):
+    if a < 0:
+        return "Error: Cannot square root a negative number!"
+    return math.sqrt(a)
+
+def calculate(num1, operator, num2=None):
     if operator == '+':
         return add(num1, num2)
     elif operator == '-':
@@ -21,5 +31,9 @@ def calculate(num1, operator, num2):
         return multiply(num1, num2)
     elif operator == '/':
         return divide(num1, num2)
+    elif operator == '^':
+        return power(num1, num2)
+    elif operator == 'sqrt':
+        return square_root(num1)
     else:
-        return "Error: Invalid operator! Use +  -  *  /"
+        return "Error: Invalid operator!"
