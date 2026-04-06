@@ -1,18 +1,17 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import math
+from history_manager import load_history, add_entry  # ← history import
 
 # ─── Core Logic ───────────────────────────────────────────
 def calculate(expression):
     try:
-        # Handle sqrt
         if expression.startswith("sqrt("):
             num = float(expression[5:-1])
             if num < 0:
                 return "Error: sqrt of negative!"
             return round(math.sqrt(num), 10)
-
-        result = eval(expression)  # handles +, -, *, /, **
+        result = eval(expression)
         return round(result, 10)
     except ZeroDivisionError:
         return "Error: Divide by zero!"
@@ -29,7 +28,7 @@ class CalculatorApp:
         self.root.configure(bg="#1e1e2e")
 
         self.expression = ""
-        self.history = []
+        self.history = load_history()  # ← loads saved history from file
 
         self.build_ui()
 
@@ -69,18 +68,18 @@ class CalculatorApp:
         btn_frame.pack(padx=15, pady=(0, 10))
 
         buttons = [
-            ["AC", "+/-", "%",   "÷"],
-            ["7",  "8",  "9",   "×"],
-            ["4",  "5",  "6",   "−"],
-            ["1",  "2",  "3",   "+"],
-            ["√",  "0",  "x²",  "="],
+            ["AC", "+/-", "%",  "÷"],
+            ["7",  "8",  "9",  "×"],
+            ["4",  "5",  "6",  "−"],
+            ["1",  "2",  "3",  "+"],
+            ["√",  "0",  "x²", "="],
         ]
 
         for r, row in enumerate(buttons):
             for c, label in enumerate(row):
                 self.make_button(btn_frame, label, r, c)
 
-        # ── History ──
+        # ── History Label ──
         hist_label = tk.Label(
             self.root,
             text="📜  History",
@@ -91,6 +90,7 @@ class CalculatorApp:
         )
         hist_label.pack(padx=15, fill="x")
 
+        # ── History Box ──
         self.history_box = scrolledtext.ScrolledText(
             self.root,
             height=6,
@@ -104,8 +104,16 @@ class CalculatorApp:
         )
         self.history_box.pack(padx=15, pady=(4, 15), fill="x")
 
+        # ── Load old history into box on startup ──
+        if self.history:
+            self.history_box.config(state="normal")
+            for entry in self.history:
+                self.history_box.insert("end", entry + "\n")
+            self.history_box.see("end")
+            self.history_box.config(state="disabled")
+
+    # ── Button Factory ────────────────────────────────────
     def make_button(self, parent, label, row, col):
-        # Color themes
         if label in ["÷", "×", "−", "+", "="]:
             bg, fg, active_bg = "#f38ba8", "#1e1e2e", "#eba0ac"
         elif label in ["AC", "+/-", "%"]:
@@ -160,7 +168,7 @@ class CalculatorApp:
                 val = float(self.expression)
                 expr = f"sqrt({val})"
                 result = calculate(expr)
-                self.save_history(f"√{val}", result)
+                self.record_history(f"√{val}", result)
                 self.sub_display.config(text=f"√ {val}")
                 self.expression = str(result)
                 self.display_var.set(result)
@@ -171,7 +179,7 @@ class CalculatorApp:
             try:
                 val = float(self.expression)
                 result = calculate(f"{val}**2")
-                self.save_history(f"{val}²", result)
+                self.record_history(f"{val}²", result)
                 self.sub_display.config(text=f"{val} ²")
                 self.expression = str(result)
                 self.display_var.set(result)
@@ -188,13 +196,12 @@ class CalculatorApp:
                     .replace("-", "−")
                 )
                 result = calculate(self.expression)
-                self.save_history(expr_display, result)
+                self.record_history(expr_display, result)
                 self.sub_display.config(text=expr_display)
                 self.expression = str(result)
                 self.display_var.set(result)
 
         else:
-            # Map display symbols to Python operators
             op_map = {"÷": "/", "×": "*", "−": "-"}
             char = op_map.get(label, label)
             self.expression += char
@@ -205,10 +212,10 @@ class CalculatorApp:
                 .replace("-", "−")
             )
 
-    # ── History ───────────────────────────────────────────
-    def save_history(self, expr, result):
+    # ── Save to history box AND file ──────────────────────
+    def record_history(self, expr, result):
         entry = f"  {expr} = {result}"
-        self.history.append(entry)
+        add_entry(self.history, entry)   # ← saves to history.json
 
         self.history_box.config(state="normal")
         self.history_box.insert("end", entry + "\n")

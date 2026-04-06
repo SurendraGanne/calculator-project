@@ -1,0 +1,11 @@
+# PyInstaller
+build/
+dist/
+*.spec
+
+# History file (optional - remove if you want to track it)
+history.json
+
+# Python cache
+__pycache__/
+*.pyc

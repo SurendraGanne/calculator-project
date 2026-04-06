@@ -1,5 +1,7 @@
 import math
 
+# ── Basic Operations ──────────────────────────────────────
+
 def add(a, b):
     return a + b
 
@@ -22,7 +24,9 @@ def square_root(a):
         return "Error: Cannot square root a negative number!"
     return math.sqrt(a)
 
-def calculate(num1, operator, num2=None):
+# ── Main calculate() ──────────────────────────────────────
+
+def calculate(num1, operator, num2=None):  # num2 is optional for sqrt
     if operator == '+':
         return add(num1, num2)
     elif operator == '-':
@@ -31,9 +35,9 @@ def calculate(num1, operator, num2=None):
         return multiply(num1, num2)
     elif operator == '/':
         return divide(num1, num2)
-    elif operator == '^':
+    elif operator == '^':          # ← power uses '^'
         return power(num1, num2)
-    elif operator == 'sqrt':
+    elif operator == 'sqrt':       # ← sqrt only needs num1
         return square_root(num1)
     else:
         return "Error: Invalid operator!"
